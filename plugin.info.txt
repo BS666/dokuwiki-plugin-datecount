@@ -1,0 +1,6 @@
+base   datecount
+author BS666
+date   2017-08-12
+name   datecount plugin
+desc   Shows time down/up to specific date
+url    https://github.com/BS666/dokuwiki-plugin-datecount
