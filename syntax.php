@@ -86,11 +86,11 @@ class syntax_plugin_datecount extends DokuWiki_Syntax_Plugin {
         $diffInYears = floor($diffInMonths / 12);
         $diffMonthLeft = $diffInMonths % 12;
         return 	'<ul>' .
-            '<li>' . $diffInYears . ' Jahre, ' . $diffMonthLeft . ' Monate und ' . $diffDaysLeft . ' Tage</li>' .
-            '<li>' . $diffInMonths . ' Monate und ' . $diffDaysLeft . ' Tage</li>' .
-            '<li>' . $diffInWeeks . ' Wochen und ' . $diffDaysLeftFromWeeks . ' Tage</li>' .
-            '<li>' . round($diffDaysTotal / 7, 2) . ' Wochen</li>' .
-            '<li>' . $diffDaysTotal . ' Tage</li>' . 
+            '<li>' . $diffInYears . ' years ' . $diffMonthLeft . ' months and ' . $diffDaysLeft . ' days</li>' .
+            '<li>' . $diffInMonths . ' months and ' . $diffDaysLeft . ' days</li>' .
+            '<li>' . $diffInWeeks . ' weeks and ' . $diffDaysLeftFromWeeks . ' days</li>' .
+            '<li>' . round($diffDaysTotal / 7, 2) . ' weeks</li>' .
+            '<li>' . $diffDaysTotal . ' days</li>' .
         '</ul>';
     }
 }
