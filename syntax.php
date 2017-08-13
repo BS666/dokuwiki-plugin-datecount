@@ -13,19 +13,19 @@ class syntax_plugin_datecount extends DokuWiki_Syntax_Plugin {
      * @return string Syntax mode type
      */
     public function getType() {
-        return 'FIXME: container|baseonly|formatting|substition|protected|disabled|paragraphs';
+        return 'substition';
     }
     /**
      * @return string Paragraph type
      */
     public function getPType() {
-        return 'FIXME: normal|block|stack';
+        return 'normal';
     }
     /**
      * @return int Sort order - Low numbers go before high numbers
      */
     public function getSort() {
-        return FIXME;
+        return 100;
     }
 
     /**
@@ -34,13 +34,8 @@ class syntax_plugin_datecount extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<FIXME>',$mode,'plugin_datecount');
-//        $this->Lexer->addEntryPattern('<FIXME>',$mode,'plugin_datecount');
+        $this->Lexer->addSpecialPattern('{{datecount\-.+?}}', $mode, 'plugin_datecount');
     }
-
-//    public function postConnect() {
-//        $this->Lexer->addExitPattern('</FIXME>','plugin_datecount');
-//    }
 
     /**
      * Handle matches of the datecount syntax
@@ -51,10 +46,16 @@ class syntax_plugin_datecount extends DokuWiki_Syntax_Plugin {
      * @param Doku_Handler    $handler The handler
      * @return array Data for the renderer
      */
-    public function handle($match, $state, $pos, Doku_Handler $handler){
-        $data = array();
-
-        return $data;
+    public function handle($match, $state, $pos, Doku_Handler $handler) {
+        if (DOKU_LEXER_SPECIAL == $state) {
+            try {
+                $date = new DateTime(substr($match, 12, -2));
+            } catch (Exception $e) {
+                return [];
+            }
+            return ['date' => $date];
+        }
+        return [];
     }
 
     /**
@@ -66,10 +67,30 @@ class syntax_plugin_datecount extends DokuWiki_Syntax_Plugin {
      * @return bool If rendering was successful.
      */
     public function render($mode, Doku_Renderer $renderer, $data) {
-        if($mode != 'xhtml') return false;
+        if($mode == 'xhtml' && $this->_isValidDateTime($data)) {
+            $renderer->doc.= $this->_parseDateCount($data['date']);
+            return true;
+        }
+        return false;
+    }
 
-        return true;
+    private function _isValidDateTime($data) {
+        return isset($data['date']) && $data['date'] instanceof DateTime && 0 < $data['date']->format('U');
+    }
+
+    private function _parseDateCount(DateTime $date) {
+        $diff = $date->diff(new DateTime());
+        list($diffInMonths, $diffDaysLeft, $diffDaysTotal) = explode(';', $diff->format('%m;%d;%a'));
+        $diffInWeeks = floor($diffDaysTotal / 7);
+        $diffDaysLeftFromWeeks = $diffDaysTotal % 7;
+        $diffInYears = floor($diffInMonths / 12);
+        $diffMonthLeft = $diffInMonths % 12;
+        return 	'<ul>' .
+            '<li>' . $diffInYears . ' Jahre, ' . $diffMonthLeft . ' Monate und ' . $diffDaysLeft . ' Tage</li>' .
+            '<li>' . $diffInMonths . ' Monate und ' . $diffDaysLeft . ' Tage</li>' .
+            '<li>' . $diffInWeeks . ' Wochen und ' . $diffDaysLeftFromWeeks . ' Tage</li>' .
+            '<li>' . round($diffDaysTotal / 7, 2) . ' Wochen</li>' .
+            '<li>' . $diffDaysTotal . ' Tage</li>' . 
+        '</ul>';
     }
 }
-
-// vim:ts=4:sw=4:et:
